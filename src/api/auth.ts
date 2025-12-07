@@ -10,6 +10,12 @@ export interface SignupRequest {
     confirmPassword: string
 }
 
+// 登录请求接口
+export interface LoginRequest {
+    email: string
+    password: string
+}
+
 // 响应数据接口
 export interface ApiResponse<T = any> {
     success: boolean
@@ -26,6 +32,18 @@ export const signup = async (data: SignupRequest): Promise<ApiResponse> => {
         throw error.response?.data || {
             success: false,
             message: error.message || '注册失败'
+        }
+    }
+}
+
+export const login = async (data: LoginRequest): Promise<ApiResponse> => {
+    try {
+        const response = await axios.post('/user/auth/signin', data)
+        return response.data
+    } catch (error: any) {
+        throw error.response?.data || {
+            success: false,
+            message: error.message || '登录失败'
         }
     }
 }

@@ -37,6 +37,7 @@
                         placeholder="请输入密码"
                         :formatter="(value: string) => value.replace(/[\u4e00-\u9fa5]/g, '')"
                         :parser="(value: string) => value.replace(/[\u4e00-\u9fa5]/g, '')"
+                        @paste="handlePaste"
                     ></el-input>
                 </el-form-item>
 
@@ -48,6 +49,7 @@
                         placeholder="请再次输入密码"
                         :formatter="(value: string) => value.replace(/[\u4e00-\u9fa5]/g, '')"
                         :parser="(value: string) => value.replace(/[\u4e00-\u9fa5]/g, '')"
+                        @paste="handlePaste"
                     ></el-input>
                 </el-form-item>
 
@@ -77,7 +79,8 @@
 import { reactive, ref } from "vue";
 import { ElMessage } from "element-plus";
 import type { FormInstance, FormRules } from "element-plus";
-import axios from "axios";
+// import axios from "axios";
+import { signup, type SignupRequest } from "../../api/auth";
 import { useRouter } from "vue-router";
 
 interface SignupForm {
@@ -99,7 +102,7 @@ const signupForm = reactive<SignupForm>({
     confirmPassword: "",
 });
 
-const validateConfirmPassword = (rule: any, value: string, callback: any) => {
+const validateConfirmPassword = (_rule: any, value: string, callback: any) => {
     if (value === "") {
         callback(new Error("请再次输入密码"));
     } else if (value !== signupForm.password) {
@@ -151,34 +154,67 @@ const signupRules = reactive<FormRules>({
     ],
 });
 
+// 处理粘贴事件
+const handlePaste = (e: ClipboardEvent) => { 
+    e.preventDefault();
+    ElMessage.warning("密码输入框不允许粘贴！");
+};
+
 const handleSignup = async () => {
     if (!signupFormRef.value) return;
 
     await signupFormRef.value.validate(async (valid) => {
         if (valid) {
             loading.value = true;
+            // try {
+            //     // 发送注册请求到后端 /user/signup 接口
+            //     const response = await axios.post("/user/auth/signup", {
+            //         email: signupForm.email,
+            //         username: signupForm.username,
+            //         password: signupForm.password,
+            //         confirmPassword: signupForm.confirmPassword,
+            //     });
+
+            //     if (response.data.success) {
+            //         ElMessage.success("注册成功!");
+            //         // 注册成功后跳转到登录页
+            //         router.push("/login");
+            //     } else {
+            //         ElMessage.error(response.data.message || "注册失败");
+            //     }
+            // } catch (error: any) {
+            //     console.error("注册错误:", error);
+            //     ElMessage.error(
+            //         error.response?.data?.message || "注册失败，请稍后重试"
+            //     );
+            // } finally {
+            //     loading.value = false;
+            // }
+
             try {
-                // 发送注册请求到后端 /user/signup 接口
-                const response = await axios.post("/user/auth/signup", {
+                // 准备注册数据
+                const signupData: SignupRequest = {
                     email: signupForm.email,
                     username: signupForm.username,
                     password: signupForm.password,
                     confirmPassword: signupForm.confirmPassword,
-                });
-
-                if (response.data.success) {
-                    ElMessage.success("注册成功!");
-                    // 注册成功后跳转到登录页
-                    router.push("/login");
-                } else {
-                    ElMessage.error(response.data.message || "注册失败");
+                };
+                // 调用注册接口，发送注册请求
+                const response = await signup(signupData);
+                if (response.success) { 
+                    ElMessage.success("注册成功！");
+                    // TODO: 增加延时
+                    goToLogin();
+                } else { 
+                    ElMessage.error(response.message || "注册失败");
                 }
-            } catch (error: any) {
-                console.error("注册错误:", error);
-                ElMessage.error(
-                    error.response?.data?.message || "注册失败，请稍后重试"
-                );
-            } finally {
+            } catch (error: any) { 
+                const errorMessage = 
+                    (error && error.message) || 
+                    (error && error.response && error.response.data && error.response.data.message) || 
+                    "登录失败！";
+                ElMessage.error(errorMessage);
+            } finally { 
                 loading.value = false;
             }
         }
@@ -198,6 +234,7 @@ const goToLogin = () => {
     align-items: center;
     height: 100vh;
     background-color: #f5f5f5;
+    user-select: none;  /* 禁止用户选中文本 */
 }
 
 .signup-card {
