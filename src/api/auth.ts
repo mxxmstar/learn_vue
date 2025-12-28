@@ -26,7 +26,7 @@ export interface ApiResponse<T = any> {
 // 用户注册
 export const signup = async (data: SignupRequest): Promise<ApiResponse> => {
     try {
-        const response = await axios.post('/user/auth/signup', data)
+        const response = await axios.post('/user-auth/signup', data)
         return response.data
     } catch (error: any) {
         throw error.response?.data || {
@@ -38,7 +38,7 @@ export const signup = async (data: SignupRequest): Promise<ApiResponse> => {
 
 export const login = async (data: LoginRequest): Promise<ApiResponse> => {
     try {
-        const response = await axios.post('/user/auth/signin', data)
+        const response = await axios.post('/user-auth/login', data)
         return response.data
     } catch (error: any) {
         throw error.response?.data || {
