@@ -1,5 +1,11 @@
 <template>
     <div class="signup-container">
+        <!-- 背景容器 -->
+        <div class="bg-blur-layer"></div>
+        <!-- 左侧插画 -->
+         <!-- <div class="signup-illustration">
+            <img src="../../assets/images/login-left.svg" alt="注册" />
+        </div> -->
         <el-card class="signup-card">
             <template #header>
                 <div class="card-header">
@@ -26,6 +32,7 @@
                         placeholder="请输入邮箱"
                         :formatter="(value: string) => value.replace(/[\u4e00-\u9fa5]/g, '')"
                         :parser="(value: string) => value.replace(/[\u4e00-\u9fa5]/g, '')"
+                        auto-complete="off"
                     />
                 </el-form-item>
 
@@ -38,6 +45,7 @@
                         :formatter="(value: string) => value.replace(/[\u4e00-\u9fa5]/g, '')"
                         :parser="(value: string) => value.replace(/[\u4e00-\u9fa5]/g, '')"
                         @paste="handlePaste"
+                        auto-complete="off"
                     ></el-input>
                 </el-form-item>
 
@@ -155,7 +163,7 @@ const signupRules = reactive<FormRules>({
 });
 
 // 处理粘贴事件
-const handlePaste = (e: ClipboardEvent) => { 
+const handlePaste = (e: ClipboardEvent) => {
     e.preventDefault();
     ElMessage.warning("密码输入框不允许粘贴！");
 };
@@ -201,20 +209,20 @@ const handleSignup = async () => {
                 };
                 // 调用注册接口，发送注册请求
                 const response = await signup(signupData);
-                if (response.success) { 
+                if (response.success) {
                     ElMessage.success("注册成功！");
                     // TODO: 增加延时
                     goToLogin();
-                } else { 
+                } else {
                     ElMessage.error(response.message || "注册失败");
                 }
-            } catch (error: any) { 
-                const errorMessage = 
-                    (error && error.message) || 
-                    (error && error.response && error.response.data && error.response.data.message) || 
+            } catch (error: any) {
+                const errorMessage =
+                    (error && error.message) ||
+                    (error && error.response && error.response.data && error.response.data.message) ||
                     "登录失败！";
                 ElMessage.error(errorMessage);
-            } finally { 
+            } finally {
                 loading.value = false;
             }
         }
@@ -229,23 +237,82 @@ const goToLogin = () => {
 
 <style scoped>
 .signup-container {
+    position: relative;
     display: flex;
     justify-content: center;
     align-items: center;
     height: 100vh;
-    background-color: #f5f5f5;
+    background-color: #f5f5f569;
+    /* background-image: url("../../assets/images/bg_signup.svg"); */
     user-select: none;  /* 禁止用户选中文本 */
+    position: relative;
 }
+
+/* .signup-container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(to right, rgba(255, 255, 255, 0.35), rgba(255, 255, 255, 0.35));
+    z-index: 0;*/
+/*    backdrop-filter: blur(0.5px); /* 对渐变层应用模糊效果 */
+/*} */
+
+.bg-blur-layer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: url('../../assets/images/bg_signup.svg') no-repeat center center;
+    background-size: cover;
+    filter: blur(0.5px);
+    z-index: -1;
+}
+
+.bg-blur-layer::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(to right, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.2));
+    z-index: -1;
+}
+
+/* .signup-illustration {
+    position: absolute;
+    left: 50px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 400px;
+    z-index: 1;
+}
+
+.signup-illustration img {
+    width: 100%;
+    height: auto;
+} */
 
 .signup-card {
     width: 400px;
     max-width: 90%;
+    background: rgba(255, 255, 255, 0.526);
+    backdrop-filter: blur(10px);
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+    z-index: 2;
+    /*margin-left: 450px;*/ /* 为左侧插画留出空间 */
 }
 
 .card-header {
     text-align: center;
-    font-size: 18px;
+    font-size: 20px;
     font-weight: bold;
+    color: #469cfd; /* 浅蓝色主题 */
 }
 
 .login-link {
@@ -275,5 +342,28 @@ const goToLogin = () => {
     width: 220px;
     height: 40px;
     font-size: 16px;
+}
+
+.signup-button:hover {
+    background: linear-gradient(135deg, #7ec0ee, #4169e1);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(70, 130, 180, 0.4);
+}
+
+.el-input {
+    border-radius: 8px;
+}
+
+.el-input__wrapper {
+    border-radius: 8px !important;
+    border: 1px solid #b0c4de !important;
+}
+
+.el-input__wrapper.is-focus {
+    box-shadow: 0 0 0 2px rgba(135, 206, 235, 0.3) !important;
+}
+
+.el-form-item__label {
+    color: #4682b4;
 }
 </style>

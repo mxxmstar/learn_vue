@@ -1,5 +1,6 @@
 <template>
     <div class="login-container">
+        <div class="bg-blur-layer"></div>
         <el-card class="login-card">
             <template #header>
                 <div class="card-header">
@@ -12,13 +13,14 @@
                 :rules="loginRules"
                 label-width="80px"
                 @submit.prevent="handleLogin"
-            > 
+            >
             <el-form-item label="邮箱" prop="email">
                     <el-input
                         v-model="loginForm.email"
                         placeholder="请输入邮箱"
                         :formatter="(value: string) => value.replace(/[\u4e00-\u9fa5]/g, '')"
                         :parser="(value: string) => value.replace(/[\u4e00-\u9fa5]/g, '')"
+                        auto-complete="off"
                     />
             </el-form-item>
 
@@ -31,6 +33,7 @@
                         :formatter="(value: string) => value.replace(/[\u4e00-\u9fa5]/g, '')"
                         :parser="(value: string) => value.replace(/[\u4e00-\u9fa5]/g, '')"
                         @paste="handlePaste"
+                        auto-complete="off"
                     />
             </el-form-item>
 
@@ -100,15 +103,15 @@ const loginRules = reactive<FormRules>({
 })
 
 // 处理粘贴事件
-const handlePaste = (e: ClipboardEvent) => { 
+const handlePaste = (e: ClipboardEvent) => {
     e.preventDefault();
     ElMessage.warning("密码输入框不允许粘贴！");
 };
-const handleLogin = async () => { 
+const handleLogin = async () => {
     if (!loginFormRef.value) return;
 
-    await loginFormRef.value.validate(async (valid: boolean) => { 
-        if (valid) { 
+    await loginFormRef.value.validate(async (valid: boolean) => {
+        if (valid) {
             loading.value = true;
             // try {
             //     // 发送登录请求到后端 /user/login 接口
@@ -146,9 +149,9 @@ const handleLogin = async () => {
                     ElMessage.error(response.message || "登录失败！");
                 }
             } catch (error: any) {
-                const errorMessage = 
-                    (error && error.message) || 
-                    (error && error.response && error.response.data && error.response.data.message) || 
+                const errorMessage =
+                    (error && error.message) ||
+                    (error && error.response && error.response.data && error.response.data.message) ||
                     "登录失败！";
                 ElMessage.error(errorMessage);
             } finally {
@@ -158,7 +161,7 @@ const handleLogin = async () => {
     });
 };
 
-const goToSignUp = () => { 
+const goToSignUp = () => {
     router.push('/signup');
 };
 
@@ -171,27 +174,57 @@ const goToSignUp = () => {
     justify-content: center;
     align-items: center;
     height: 100vh;
-    background-color: #f5f5f5;
+    background-color: #f5f5f569;
     user-select: none;  /* 禁止用户选中文本 */
+    position: relative;
+}
+
+.bg-blur-layer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: url('../../assets/images/bg_signup.svg') no-repeat center center;
+    background-size: cover;
+    filter: blur(0.5px);
+    z-index: -1;
+}
+
+.bg-blur-layer::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(to right, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.2));
+    z-index: -1;
 }
 
 .login-card {
     width: 400px;
     max-width: 90%;
+    background: rgba(255, 255, 255, 0.526);
+    /* backdrop-filter: blur(10px); */
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+    z-index: 2;
 }
 
-.card-header { 
+.card-header {
     text-align: center;
-    font-size: 18px;
+    font-size: 20px;
     font-weight: bold;
+    color: #469cfd; /* 浅蓝色主题 */
 }
 
-.signup-link { 
+.signup-link {
     text-align: center;
     margin-top: 20px;
 }
 
-.button-container { 
+.button-container {
     display: flex;
     justify-content: center;
     margin-top: 10px;
@@ -202,10 +235,16 @@ const goToSignUp = () => {
     margin-left: 0 !important;
 }
 
-.login-button { 
+.login-button {
     width: 220px;
     height: 40px;
     font-size: 16px;
+}
+
+.login-button:hover {
+    background: linear-gradient(135deg, #7ec0ee, #4169e1);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(70, 130, 180, 0.4);
 }
 
 /* 允许在输入框中选择文本 */
